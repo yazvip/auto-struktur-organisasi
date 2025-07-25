@@ -3,144 +3,31 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Generator Bagan Organisasi (Drag & Drop)</title>
+    <title>Generator Bagan Organisasi Fleksibel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <style>
-        :root {
-            --bg-main: #f1f5f9;
-            --bg-panel: white;
-            --text-title: #1e293b;
-            --text-body: #475569;
-            --text-muted: #64748b;
-            --border-color: #cbd5e1;
-            --node-bg: white;
-            --node-stroke: #94a3b8;
-            --node-role-text: #4338ca;
-            --node-name-text: #475569;
-            --node-hover-bg: #eef2ff;
-            --node-hover-stroke: #4338ca;
-            --link-color: #94a3b8;
-        }
-
-        [data-theme="dark"] {
-            --bg-main: #0f172a;
-            --bg-panel: #1e293b;
-            --text-title: #f1f5f9;
-            --text-body: #94a3b8;
-            --text-muted: #64748b;
-            --border-color: #334155;
-            --node-bg: #334155;
-            --node-stroke: #475569;
-            --node-role-text: #a5b4fc;
-            --node-name-text: #cbd5e1;
-            --node-hover-bg: #475569;
-            --node-hover-stroke: #a5b4fc;
-            --link-color: #475569;
-        }
-
-        [data-theme="formal"] {
-            --bg-main: #f0f9ff;
-            --bg-panel: white;
-            --text-title: #0c4a6e;
-            --text-body: #075985;
-            --text-muted: #0ea5e9;
-            --border-color: #bae6fd;
-            --node-bg: white;
-            --node-stroke: #0ea5e9;
-            --node-role-text: #0369a1;
-            --node-name-text: #0c4a6e;
-            --node-hover-bg: #e0f2fe;
-            --node-hover-stroke: #0369a1;
-            --link-color: #7dd3fc;
-        }
-
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-body);
-            overflow: hidden;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .controls {
-            z-index: 10;
-            background-color: var(--bg-panel);
-            transition: background-color 0.3s;
-        }
-        .chart-container {
-            width: 100%;
-            height: 100%;
-        }
-        .node-group { cursor: grab; }
-        .node-group.dragging { cursor: grabbing; }
-        .node-rect { stroke: var(--node-stroke); fill: var(--node-bg); stroke-width: 1.5px; transition: all 0.3s ease; }
-        .node-text-role, .node-text-name { font-size: 14px; font-weight: 600; fill: var(--node-role-text); pointer-events: none; }
-        .node-text-name { font-size: 12px; fill: var(--node-name-text); }
-        .node-group:hover > .node-rect { fill: var(--node-hover-bg); stroke: var(--node-hover-stroke); }
-        .node-group.drop-target > .node-rect { stroke: #16a34a; stroke-width: 3px; }
-        .link { fill: none; stroke: var(--link-color); stroke-opacity: 0.8; stroke-width: 2px; transition: stroke 0.3s; }
-        .delete-btn { cursor: pointer; opacity: 0; transition: opacity 0.2s; }
-        .node-group:hover .delete-btn { opacity: 1; }
-        .delete-btn circle { fill: #ef4444; }
-        .delete-btn text { fill: white; font-size: 14px; font-weight: bold; pointer-events: none; }
-        .edit-form-input { width: 100%; padding: 4px; border: 1px solid #a78bfa; border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 14px; }
-        
-        /* Modal Ekspor */
-        .export-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .export-modal-content {
-            background-color: var(--bg-panel);
-            padding: 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 95vw;
-            height: 95vh;
-            display: flex;
-            flex-direction: column;
-        }
-        #export-preview-area {
-            flex-grow: 1;
-            background-color: var(--bg-main);
-            border: 1px dashed var(--border-color);
-            overflow: hidden;
-            position: relative;
-        }
-        #export-paper {
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="default">
-    <div class="flex flex-col lg:flex-row h-screen">
-        <!-- Panel Kontrol -->
-        <div class="w-full lg:w-1/4 bg-white p-6 shadow-lg overflow-y-auto controls">
-            <h1 class="text-2xl font-bold text-slate-800 mb-2" style="color: var(--text-title);">Generator Interaktif</h1>
-            <p class="text-slate-600 mb-6" style="color: var(--text-body);">Klik dua kali untuk mengedit. Geser untuk mengubah struktur.</p>
+    <div class="relative h-screen flex">
+        <!-- Panel Kontrol (Sidebar) -->
+        <div id="controls-panel" class="absolute top-0 left-0 h-full w-4/5 max-w-sm bg-white p-6 shadow-lg overflow-y-auto controls lg:relative lg:w-1/4 lg:max-w-none">
+            <button id="close-controls-btn" class="absolute top-4 right-4 text-slate-500 hover:text-slate-800 lg:hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h1 class="text-2xl font-bold text-slate-800 mb-2" style="color: var(--text-title);">Generator Fleksibel</h1>
+            <p class="text-slate-600 mb-6" style="color: var(--text-body);">Bebas atur struktur, tambah bawahan atau anggota tim.</p>
 
             <div class="space-y-6">
-                <!-- Judul Organisasi (FIXED) -->
+                <!-- Judul Organisasi -->
                 <div>
                     <label for="org-title" class="block text-sm font-medium text-slate-700 mb-1">Judul Organisasi</label>
-                    <input type="text" id="org-title" class="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" value="Nama Organisasi Anda" style="background-color: var(--bg-panel); border-color: var(--border-color); color: var(--text-body);">
+                    <input type="text" id="org-title" class="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" value="Struktur Organisasi Fleksibel" style="background-color: var(--bg-panel); border-color: var(--border-color); color: var(--text-body);">
                 </div>
 
                  <!-- Aksi & Ekspor -->
@@ -166,12 +53,12 @@
                     </div>
                 </div>
 
-                <!-- Tambah Jabatan -->
+                <!-- Tambah Node -->
                 <div>
-                    <h3 class="text-lg font-semibold" style="color: var(--text-title);">Tambah Jabatan</h3>
+                    <h3 class="text-lg font-semibold" style="color: var(--text-title);">Tambah Entitas Baru</h3>
                      <div class="space-y-3 mt-2">
                          <div>
-                            <label for="new-role" class="block text-sm font-medium">Jabatan</label>
+                            <label for="new-role" class="block text-sm font-medium">Jabatan/Peran</label>
                             <input type="text" id="new-role" class="mt-1 w-full px-3 py-2 border rounded-md shadow-sm" style="background-color: var(--bg-panel); border-color: var(--border-color); color: var(--text-body);">
                         </div>
                          <div>
@@ -182,15 +69,23 @@
                             <label for="parent-node-select" class="block text-sm font-medium">Terhubung ke</label>
                             <select id="parent-node-select" class="mt-1 w-full px-3 py-2 border rounded-md shadow-sm" style="background-color: var(--bg-panel); border-color: var(--border-color); color: var(--text-body);"></select>
                         </div>
-                        <button id="add-node-btn" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700">Tambah Jabatan</button>
+                        <div class="grid grid-cols-2 gap-2">
+                             <button id="add-child-btn" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700">Tambah Bawahan</button>
+                             <button id="add-member-btn" class="w-full bg-orange-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-orange-600">Tambah Anggota</button>
+                        </div>
                      </div>
                 </div>
             </div>
         </div>
 
         <!-- Area Tampilan Bagan -->
-        <div class="w-full lg:w-3/4 bg-slate-50 relative" style="background-color: var(--bg-main);">
-             <h2 id="display-title" class="absolute top-6 left-1/2 -translate-x-1/2 text-3xl font-bold z-10 pointer-events-none" style="color: var(--text-title);"></h2>
+        <div class="flex-1 bg-slate-50 relative" style="background-color: var(--bg-main);">
+             <button id="open-controls-btn" class="absolute top-4 left-4 z-10 bg-white p-2 rounded-md shadow-md lg:hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+             <h2 id="display-title" class="absolute top-6 left-1/2 -translate-x-1/2 text-xl md:text-3xl font-bold z-10 pointer-events-none text-center px-16" style="color: var(--text-title);"></h2>
              <div id="chart-container" class="chart-container"></div>
         </div>
     </div>
@@ -198,9 +93,9 @@
     <!-- Modal untuk Pratinjau Ekspor -->
     <div id="export-modal" class="export-modal-overlay hidden">
         <div class="export-modal-content">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
                 <h3 class="text-xl font-bold" style="color: var(--text-title);">Pratinjau Ekspor</h3>
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center flex-wrap justify-center gap-2">
                     <select id="paper-size-select" class="px-3 py-2 border rounded-md" style="background-color: var(--bg-panel); border-color: var(--border-color);">
                         <option value="1123x794">A4 Lanskap</option>
                         <option value="794x1123">A4 Potret</option>
@@ -221,216 +116,6 @@
         </div>
     </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- Elemen UI ---
-        const titleInput = document.getElementById('org-title');
-        const displayTitle = document.getElementById('display-title');
-        const chartContainer = document.getElementById('chart-container');
-        
-        // --- Variabel Global ---
-        let width = chartContainer.clientWidth;
-        let height = chartContainer.clientHeight;
-        let treeData = { id: 1, role: 'Jabatan Puncak', name: 'Mulai di sini' };
-        let nextNodeId = 2;
-        
-        // --- Manajemen History (Undo/Redo) ---
-        let history = [];
-        let historyIndex = -1;
-
-        // --- Setup D3.js ---
-        const svg = d3.select("#chart-container").append("svg").attr("width", width).attr("height", height);
-        const g = svg.append("g");
-        svg.call(d3.zoom().on("zoom", (event) => g.attr("transform", event.transform)));
-
-        const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().id(d => d.data.id).distance(120).strength(0.5))
-            .force("charge", d3.forceManyBody().strength(-400))
-            .force("x", d3.forceX(width / 2).strength(0.05))
-            .force("y", d3.forceY(d => d.depth * 180).strength(1));
-
-        const dragHandler = d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended);
-
-        // --- Fungsi Utama ---
-        function updateChart() {
-            const root = d3.hierarchy(treeData);
-            const nodes = root.descendants();
-            const links = root.links();
-            
-            g.selectAll('.link').remove();
-            g.selectAll('.node-group').remove();
-
-            const link = g.append('g').attr('class', 'links').selectAll('path.link').data(links, d => d.target.id).enter().append('path').attr('class', 'link');
-            const node = g.append('g').attr('class', 'nodes').selectAll('g.node-group').data(nodes, d => d.data.id).enter().append('g').attr('class', 'node-group').call(dragHandler).on('dblclick', (event, d) => { event.stopPropagation(); showEditForm(d); });
-
-            node.append("rect").attr('class', 'node-rect').attr("width", 200).attr("height", 60).attr("x", -100).attr("y", -30).attr("rx", 8);
-            node.append("text").attr("class", "node-text-role").attr("dy", "-0.2em").attr("text-anchor", "middle").text(d => d.data.role);
-            node.append("text").attr("class", "node-text-name").attr("dy", "1.2em").attr("text-anchor", "middle").text(d => d.data.name);
-            
-            const deleteBtn = node.append('g').attr('class', 'delete-btn').attr('transform', 'translate(90, -20)').style('display', d => d.depth === 0 ? 'none' : null).on('click', (event, d) => { event.stopPropagation(); deleteNode(d.data.id); });
-            deleteBtn.append('circle').attr('r', 10);
-            deleteBtn.append('text').attr('text-anchor', 'middle').attr('dy', '0.35em').text('X');
-
-            simulation.nodes(nodes).on("tick", () => {
-                link.attr("d", d => curvedConnector(d));
-                node.attr("transform", d => `translate(${d.x},${d.y})`);
-            });
-            simulation.force("link").links(links);
-            simulation.alpha(1).restart();
-            
-            populateParentSelector();
-            updateHistoryButtons();
-        }
-
-        function curvedConnector(d) {
-            const forkY = d.source.y + 60;
-            const cornerRadius = 15;
-            if (d.target.y < forkY + cornerRadius) return `M ${d.source.x},${d.source.y} L ${d.target.x},${d.target.y}`;
-            const xDirection = d.target.x > d.source.x ? 1 : -1;
-            return `M ${d.source.x},${d.source.y} V ${forkY - cornerRadius} C ${d.source.x},${forkY} ${d.source.x},${forkY} ${d.source.x + cornerRadius * xDirection},${forkY} H ${d.target.x - cornerRadius * xDirection} C ${d.target.x},${forkY} ${d.target.x},${forkY} ${d.target.x},${forkY + cornerRadius} V ${d.target.y}`;
-        }
-
-        // --- Logika Fitur ---
-        function saveState() { history = history.slice(0, historyIndex + 1); history.push(JSON.parse(JSON.stringify(treeData))); historyIndex++; updateHistoryButtons(); }
-        function undo() { if (historyIndex > 0) { historyIndex--; treeData = JSON.parse(JSON.stringify(history[historyIndex])); updateChart(); } }
-        function redo() { if (historyIndex < history.length - 1) { historyIndex++; treeData = JSON.parse(JSON.stringify(history[historyIndex])); updateChart(); } }
-        function deleteNode(nodeId) { if (nodeId === 1) { alert("Jabatan Puncak tidak bisa dihapus."); return; } function findAndRemove(root, id) { if (root.children) { const index = root.children.findIndex(child => child.id === id); if (index !== -1) { root.children.splice(index, 1); return true; } for (const child of root.children) { if (findAndRemove(child, id)) return true; } } return false; } findAndRemove(treeData, nodeId); saveState(); updateChart(); }
-        function showEditForm(d) { const nodeGroup = d3.selectAll('.node-group').filter(p => p === d); nodeGroup.on('.drag', null); nodeGroup.selectAll('text').style('visibility', 'hidden'); const foreignObject = nodeGroup.append('foreignObject').attr('width', 200).attr('height', 60).attr('x', -100).attr('y', -30); const form = foreignObject.append('xhtml:div').style('display', 'flex').style('flex-direction', 'column').style('justify-content', 'center').style('height', '100%').style('padding', '5px'); const roleInput = form.append('xhtml:input').attr('class', 'edit-form-input').property('value', d.data.role); const nameInput = form.append('xhtml:input').attr('class', 'edit-form-input').style('margin-top', '4px').property('value', d.data.name); roleInput.node().focus(); const saveAndClose = () => { d.data.role = roleInput.property('value'); d.data.name = nameInput.property('value'); foreignObject.remove(); nodeGroup.selectAll('text').style('visibility', 'visible'); nodeGroup.select('.node-text-role').text(d.data.role); nodeGroup.select('.node-text-name').text(d.data.name); nodeGroup.call(dragHandler); saveState(); populateParentSelector(); }; form.on('focusout', e => !form.node().contains(e.relatedTarget) && saveAndClose()); form.on('keydown', e => e.key === 'Enter' ? (e.preventDefault(), saveAndClose()) : e.key === 'Escape' && (foreignObject.remove(), nodeGroup.selectAll('text').style('visibility', 'visible'), nodeGroup.call(dragHandler))); }
-
-        // --- Drag & Drop ---
-        let draggedNode = null;
-        function dragstarted(event, d) { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; draggedNode = d; d3.select(this).raise().classed('dragging', true); }
-        function dragged(event, d) { d.fx = event.x; d.fy = event.y; d3.selectAll('.node-group').classed('drop-target', false); const hovered = d3.select(document.elementFromPoint(event.sourceEvent.clientX, event.sourceEvent.clientY).closest('.node-group')); if (!hovered.empty() && hovered.datum() !== draggedNode && hovered.datum() !== draggedNode.parent) { hovered.classed('drop-target', true); } }
-        function dragended(event, d) { if (!event.active) simulation.alphaTarget(0); d3.select(this).classed('dragging', false); const dropTargetNode = d3.select('.drop-target'); if (!dropTargetNode.empty()) { const newParent = dropTargetNode.datum(); const oldParent = draggedNode.parent; let isDescendant = false; draggedNode.descendants().forEach(desc => { if (desc.data.id === newParent.data.id) isDescendant = true; }); if (!isDescendant && oldParent && oldParent.data.id !== newParent.data.id) { oldParent.data.children = oldParent.data.children.filter(child => child.id !== draggedNode.data.id); if (!newParent.data.children) newParent.data.children = []; newParent.data.children.push(draggedNode.data); delete d.fx; delete d.fy; saveState(); updateChart(); } } draggedNode = null; }
-        
-        // --- Helper & Event Listeners ---
-        function populateParentSelector() { const select = document.getElementById('parent-node-select'); select.innerHTML = ''; d3.hierarchy(treeData).descendants().forEach(node => { const option = document.createElement('option'); option.value = node.data.id; option.textContent = `${node.data.role} (${node.data.name || 'ID: ' + node.data.id})`; select.appendChild(option); }); }
-        function updateHistoryButtons() { document.getElementById('undo-btn').disabled = historyIndex <= 0; document.getElementById('redo-btn').disabled = historyIndex >= history.length - 1; }
-        document.getElementById('add-node-btn').addEventListener('click', () => { const newRole = document.getElementById('new-role').value; const newName = document.getElementById('new-name').value; const parentId = parseInt(document.getElementById('parent-node-select').value); if (newRole && parentId) { const parentNode = d3.hierarchy(treeData).find(node => node.data.id === parentId); if (parentNode) { const newNode = { id: nextNodeId++, role: newRole, name: newName }; if (!parentNode.data.children) parentNode.data.children = []; parentNode.data.children.push(newNode); saveState(); updateChart(); } document.getElementById('new-role').value = ''; document.getElementById('new-name').value = ''; } else { alert("Harap isi Jabatan."); } });
-        document.getElementById('undo-btn').addEventListener('click', undo);
-        document.getElementById('redo-btn').addEventListener('click', redo);
-        document.querySelectorAll('.theme-btn').forEach(btn => btn.addEventListener('click', () => document.body.dataset.theme = btn.dataset.theme));
-        titleInput.addEventListener('input', () => displayTitle.textContent = titleInput.value);
-        
-        // --- Logika Ekspor Baru ---
-        const exportModal = document.getElementById('export-modal');
-        const paperSizeSelect = document.getElementById('paper-size-select');
-        const exportPaper = d3.select("#export-paper");
-        const exportSvg = d3.select("#export-svg");
-        
-        document.getElementById('export-png-btn').addEventListener('click', () => {
-            exportModal.classList.remove('hidden');
-            setupExportPreview();
-        });
-        document.getElementById('close-modal-btn').addEventListener('click', () => exportModal.classList.add('hidden'));
-        paperSizeSelect.addEventListener('change', setupExportPreview);
-
-        function getInlineStyles(element) {
-            const computed = window.getComputedStyle(element);
-            const style = {};
-            const properties = ['fill', 'stroke', 'stroke-width', 'font-family', 'font-size', 'font-weight', 'text-anchor'];
-            properties.forEach(prop => {
-                style[prop] = computed.getPropertyValue(prop);
-            });
-            return Object.entries(style).map(([key, value]) => `${key}: ${value}`).join('; ');
-        }
-
-        function setupExportPreview() {
-            const [pWidth, pHeight] = paperSizeSelect.value.split('x').map(Number);
-            exportPaper.style('width', `${pWidth}px`).style('height', `${pHeight}px`);
-            exportSvg.attr('width', pWidth).attr('height', pHeight);
-
-            exportSvg.selectAll('*').remove();
-            
-            const exportContent = exportSvg.append('g');
-
-            // Salin semua link dengan gaya inline
-            g.selectAll('.link').each(function() {
-                exportContent.append('path')
-                    .attr('d', d3.select(this).attr('d'))
-                    .attr('style', getInlineStyles(this));
-            });
-
-            // Salin semua node dengan gaya inline
-            g.selectAll('.node-group').each(function() {
-                const originalNode = d3.select(this);
-                const newNode = exportContent.append('g')
-                    .attr('transform', originalNode.attr('transform'));
-                
-                newNode.append('rect')
-                    .attr('x', -100).attr('y', -30)
-                    .attr('width', 200).attr('height', 60)
-                    .attr('rx', 8)
-                    .attr('style', getInlineStyles(originalNode.select('.node-rect').node()));
-                
-                newNode.append('text')
-                    .attr('dy', '-0.2em')
-                    .text(originalNode.select('.node-text-role').text())
-                    .attr('style', getInlineStyles(originalNode.select('.node-text-role').node()));
-                
-                newNode.append('text')
-                    .attr('dy', '1.2em')
-                    .text(originalNode.select('.node-text-name').text())
-                    .attr('style', getInlineStyles(originalNode.select('.node-text-name').node()));
-            });
-
-            const mainChartBounds = g.node().getBBox();
-            const scale = Math.min(pWidth / (mainChartBounds.width + 100), pHeight / (mainChartBounds.height + 100));
-            const initialX = pWidth / 2 - (mainChartBounds.x + mainChartBounds.width / 2) * scale;
-            const initialY = pHeight / 2 - (mainChartBounds.y + mainChartBounds.height / 2) * scale;
-            const initialTransform = d3.zoomIdentity.translate(initialX, initialY).scale(scale);
-            
-            exportContent.attr('transform', initialTransform);
-
-            const zoom = d3.zoom().on('zoom', (event) => {
-                exportContent.attr('transform', event.transform);
-            });
-            exportSvg.call(zoom).call(zoom.transform, initialTransform);
-        }
-
-        document.getElementById('final-export-btn').addEventListener('click', () => {
-            const [pWidth, pHeight] = paperSizeSelect.value.split('x').map(Number);
-            
-            // Tambahkan judul ke SVG yang akan diekspor
-            exportSvg.select('g').insert('text', ':first-child')
-                .attr('x', pWidth / 2)
-                .attr('y', 40)
-                .attr('text-anchor', 'middle')
-                .attr('style', `font-size: 24px; font-weight: bold; fill: ${getComputedStyle(displayTitle).getPropertyValue('color')}; font-family: 'Inter', sans-serif;`)
-                .text(displayTitle.textContent);
-
-            const svgString = new XMLSerializer().serializeToString(exportSvg.node());
-            const svgBlob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
-            const url = URL.createObjectURL(svgBlob);
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = pWidth;
-                canvas.height = pHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-                URL.revokeObjectURL(url);
-                const pngUrl = canvas.toDataURL('image/png');
-                const a = document.createElement('a');
-                a.href = pngUrl;
-                a.download = `${titleInput.value.replace(/ /g, '_') || 'bagan_organisasi'}.png`;
-                a.click();
-            };
-            img.src = url;
-        });
-
-        // --- Logika Impor ---
-        document.getElementById('import-json-btn').addEventListener('click', () => document.getElementById('import-file-input').click());
-        document.getElementById('import-file-input').addEventListener('change', (event) => { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const importedData = JSON.parse(e.target.result); treeData = importedData; let maxId = 0; d3.hierarchy(treeData).each(d => { if(d.data.id > maxId) maxId = d.data.id; }); nextNodeId = maxId + 1; saveState(); updateChart(); } catch (error) { alert("Gagal memuat file JSON. Pastikan format file benar."); } }; reader.readAsText(file); });
-        
-        // Inisialisasi awal
-        displayTitle.textContent = titleInput.value;
-        saveState();
-        updateChart();
-    });
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
