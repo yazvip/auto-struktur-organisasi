@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const displayTitle = document.getElementById('display-title');
     const chartContainer = document.getElementById('chart-container');
     const controlsPanel = document.getElementById('controls-panel');
-    const openControlsBtn = document.getElementById('open-controls-btn');
     const closeControlsBtn = document.getElementById('close-controls-btn');
 
     // --- Variabel Global ---
@@ -268,7 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
     titleInput.addEventListener('input', () => displayTitle.textContent = titleInput.value);
 
     // --- Kontrol Sidebar Mobile ---
-    openControlsBtn.addEventListener('click', () => controlsPanel.classList.add('open'));
     closeControlsBtn.addEventListener('click', () => controlsPanel.classList.remove('open'));
 
     // --- Logika Ekspor ---
@@ -425,6 +423,93 @@ document.addEventListener('DOMContentLoaded', function() {
         reader.readAsText(file);
         event.target.value = ''; // Reset input
     });
+
+    // --- Mobile Modal Logic ---
+    const mobileAddModal = document.getElementById('mobile-add-modal');
+    const navAddBtn = document.getElementById('nav-add-btn');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    navAddBtn.addEventListener('click', () => {
+        // Populate the modal's parent selector each time it's opened
+        const modalParentSelect = document.getElementById('modal-parent-node-select');
+        const currentParentSelect = document.getElementById('parent-node-select');
+        modalParentSelect.innerHTML = currentParentSelect.innerHTML;
+        modalParentSelect.value = currentParentSelect.value;
+        mobileAddModal.classList.add('open');
+    });
+
+    modalCloseBtn.addEventListener('click', () => mobileAddModal.classList.remove('open'));
+    mobileAddModal.addEventListener('click', (e) => {
+        if (e.target === mobileAddModal) {
+            mobileAddModal.classList.remove('open');
+        }
+    });
+
+    document.getElementById('modal-add-child-btn').addEventListener('click', () => addNodeFromModal('child'));
+    document.getElementById('modal-add-member-btn').addEventListener('click', () => addNodeFromModal('member'));
+
+    function addNodeFromModal(type) {
+        const newRole = document.getElementById('modal-new-role').value;
+        const newName = document.getElementById('modal-new-name').value;
+        const parentId = parseInt(document.getElementById('modal-parent-node-select').value);
+        if (!newRole || !parentId) { alert("Harap isi Jabatan/Peran dan pilih entitas untuk terhubung."); return; }
+
+        addNode(type, newRole, newName, parentId); // Reuse the main addNode logic
+
+        // Clear inputs and close modal
+        document.getElementById('modal-new-role').value = '';
+        document.getElementById('modal-new-name').value = '';
+        mobileAddModal.classList.remove('open');
+    }
+
+    // Modify the original addNode to be more reusable
+    function addNode(type, role, name, parentId) {
+        const parentNode = findNode(parentId);
+        if (parentNode) {
+            const newNode = { id: nextNodeId++, role: role, name: name, children: [], members: [] };
+            if (type === 'child') {
+                if (!parentNode.children) parentNode.children = [];
+                parentNode.children.push(newNode);
+            } else if (type === 'member') {
+                if (!parentNode.members) parentNode.members = [];
+                parentNode.members.push(newNode);
+            }
+            saveState();
+            updateChart();
+        }
+    }
+
+    // --- Nav Menu Logic ---
+    const navMenuBtn = document.getElementById('nav-menu-btn');
+    const navUndoBtn = document.getElementById('nav-undo-btn');
+    const navRedoBtn = document.getElementById('nav-redo-btn');
+
+    navMenuBtn.addEventListener('click', () => {
+        controlsPanel.classList.add('open');
+    });
+    navUndoBtn.addEventListener('click', undo);
+    navRedoBtn.addEventListener('click', redo);
+
+    // --- Sidebar Add Buttons (for desktop) ---
+    document.getElementById('add-child-btn').addEventListener('click', () => {
+        const newRole = document.getElementById('new-role').value;
+        const newName = document.getElementById('new-name').value;
+        const parentId = parseInt(document.getElementById('parent-node-select').value);
+        if (!newRole || !parentId) { alert("Harap isi Jabatan/Peran dan pilih entitas untuk terhubung."); return; }
+        addNode('child', newRole, newName, parentId);
+        document.getElementById('new-role').value = '';
+        document.getElementById('new-name').value = '';
+    });
+    document.getElementById('add-member-btn').addEventListener('click', () => {
+        const newRole = document.getElementById('new-role').value;
+        const newName = document.getElementById('new-name').value;
+        const parentId = parseInt(document.getElementById('parent-node-select').value);
+        if (!newRole || !parentId) { alert("Harap isi Jabatan/Peran dan pilih entitas untuk terhubung."); return; }
+        addNode('member', newRole, newName, parentId);
+        document.getElementById('new-role').value = '';
+        document.getElementById('new-name').value = '';
+    });
+
 
     // Inisialisasi awal
     window.addEventListener('resize', resizeChart);
